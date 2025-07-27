@@ -1,16 +1,20 @@
-version: '3.8'
-
 services:
   web:
+    command: >
+      /bin/sh -c "
+      until python manage.py check --database default; do
+        echo 'Waiting for DB...';
+        sleep 2;
+      done;
+      python manage.py makemigrations;
+      python manage.py migrate;
+      python manage.py runserver 0.0.0.0:8000 --insecure;
+      "
     build: .
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Django ports
     volumes:
       - .:/app
     environment:
       - DJANGO_SETTINGS_MODULE=DjangoProject_GB.settings
-    command: python manage.py runserver 0.0.0.0:8000
-
-
-volumes:
-  postgres_data:
+    # command: переопределяется в Dockerfile, можно не дублировать
